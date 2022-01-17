@@ -1,3 +1,5 @@
+import time
+
 from bs4 import BeautifulSoup
 import requests
 import smtplib
@@ -13,10 +15,10 @@ import smtplib
 # Best Buy URL to be scraped
 # url ="https://www.bestbuy.com/site/playstation-5/ps5-consoles/pcmcat1587395025973.c?id=pcmcat1587395025973"
 # Best Buy testing second link
-url = "https://www.bestbuy.com/site/searchpage.jsp?st=xbox&_dyncharset=UTF-8&_dynSessConf=&id=pcat17071&type=page&sc=Global&cp=1&nrp=&sp=&qp=&list=n&af=true&iht=y&usc=All+Categories&ks=960&keys=keys"
+# url = "https://www.bestbuy.com/site/searchpage.jsp?st=xbox&_dyncharset=UTF-8&_dynSessConf=&id=pcat17071&type=page&sc=Global&cp=1&nrp=&sp=&qp=&list=n&af=true&iht=y&usc=All+Categories&ks=960&keys=keys"
 
 
-
+# Change Header for browser that you prefer I'm using Mozilla Firefox
 # Header from http://myhttpheader.com/
 headers = {'Accept-Language': "en-US,en;q=0.5", 'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0"}
 
@@ -28,21 +30,26 @@ password = ""
 fromEmailAddress=""
 sendingToEmailAddress=""
 smtp_server =""
+port = 587
 # Choose one below
-# Gmail: smtp.gmail.com
-# Hotmail: smtp.live.com
+# Gmail: smtp.gmail.com port: 25
+# Hotmail: smtp.live.com port: 587
 # Outlook: outlook.office365.com
 # Yahoo: smtp.mail.yahoo.com
 # If you use another email provider, just Google for your email provider e.g. "Gmail SMTP address"
+# Gmail will need to change security for apps
 
 def sendEmail(message):
 
+
     # create a connection
-    with smtplib.SMTP(smtp_server) as connection:
+    with smtplib.SMTP(smtp_server,port) as connection:
+
         # Start connection and secure it
         connection.starttls()
         connection.login(user=user,password=password)
         connection.sendmail(from_addr=fromEmailAddress,to_addrs=sendingToEmailAddress, msg=f'Subject:PS5 InStock\n\n {message}')
+        connection.close()
 
 
 
@@ -110,24 +117,19 @@ def bestBuyScraper(url):
             button = item.find("button", class_="c-button c-button-primary c-button-sm c-button-block c-button-icon c-button-icon-leading add-to-cart-button")  \
                      or item.find("button", class_="c-button c-button-secondary c-button-sm c-button-block add-to-cart-button")
 
+
             # If not sold out email item with price
             if button and  item.find(class_="sr-only"):
-                item_name = item.find(class_="sku-header")
-                link = item.find( href = True)
+                item_name = item.find("h4", class_="sku-header")
+                link = item_name.find( href = True)
 
                 price = item.find(class_="sr-only")
 
-                message = f"{item_name.text.strip()}\n{price.text.strip()}\n https://www.bestbuy.com{link['href']}\n"
+                # message = f"{item_name.text.strip()}\n{price.text.strip()}\n https://www.bestbuy.com{link['href']}\n"
+                message = f"https://www.bestbuy.com{link['href']}\n"
+
                 # email message
                 # print(message)
                 sendEmail(message)
-
-            # if  button:
-            #
-            #     item_name = item.find(class_="sku-header")
-            #     price = item.find(class_="sr-only")
-            #     if price:
-            #
-            #         print(f'{item_name.text.strip()}\n{price.text.strip()}\n')
-
+                time.sleep(1)
 
