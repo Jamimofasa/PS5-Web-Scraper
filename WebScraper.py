@@ -7,13 +7,13 @@ import smtplib
 # Testing second URL link
 # url = "https://www.amazon.com/dp/B08YSY9PSH/ref=sspa_dk_detail_3?psc=1&pd_rd_i=B08YSY9PSH&pd_rd_w=OU1Io&pf_rd_p=9fd3ea7c-b77c-42ac-b43b-c872d3f37c38&pd_rd_wg=snCOe&pf_rd_r=H5ZFKD472FJVY37BK93G&pd_rd_r=c23b406f-0f93-49f6-94b3-75310e92d651&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUFDVVZWOEo4SU5BNk0mZW5jcnlwdGVkSWQ9QTA3NDkzNzhEMUY2M0E4RERZQk4mZW5jcnlwdGVkQWRJZD1BMDc1OTU5NjFaVU5POTBJT0ZHUFUmd2lkZ2V0TmFtZT1zcF9kZXRhaWwmYWN0aW9uPWNsaWNrUmVkaXJlY3QmZG9Ob3RMb2dDbGljaz10cnVl"
 # Bad URL link
-url = "https://www.amazon.com/PlayStaton-5-Console/dp/B09DFCB6S?ref_=ast_sto_dp"
+# url = "https://www.amazon.com/PlayStaton-5-Console/dp/B09DFCB6S?ref_=ast_sto_dp"
 
 
 # Best Buy URL to be scraped
 # url ="https://www.bestbuy.com/site/playstation-5/ps5-consoles/pcmcat1587395025973.c?id=pcmcat1587395025973"
 # Best Buy testing second link
-# url = "https://www.bestbuy.com/site/searchpage.jsp?st=xbox&_dyncharset=UTF-8&_dynSessConf=&id=pcat17071&type=page&sc=Global&cp=1&nrp=&sp=&qp=&list=n&af=true&iht=y&usc=All+Categories&ks=960&keys=keys"
+url = "https://www.bestbuy.com/site/searchpage.jsp?st=xbox&_dyncharset=UTF-8&_dynSessConf=&id=pcat17071&type=page&sc=Global&cp=1&nrp=&sp=&qp=&list=n&af=true&iht=y&usc=All+Categories&ks=960&keys=keys"
 
 
 
@@ -75,9 +75,9 @@ def amazonScraper(url):
         # if there is stock send an email
         # Include in email: item, In stock / count(if available), and price
         if not outOfStock:
-          message = f'{soup.title.text}\n{availability.text.strip()}\n{price.text}'
-          print(message)
-          # sendEmail(message)
+          message = f'{soup.title.text}\n{availability.text.strip()}\n{price.text}\n{url}'
+          # print(message)
+          sendEmail(message)
 
 
 
@@ -113,11 +113,14 @@ def bestBuyScraper(url):
             # If not sold out email item with price
             if button and  item.find(class_="sr-only"):
                 item_name = item.find(class_="sku-header")
+                link = item.find( href = True)
+
                 price = item.find(class_="sr-only")
-                message = f'{item_name.text.strip()}\n{price.text.strip()}\n'
+
+                message = f"{item_name.text.strip()}\n{price.text.strip()}\n https://www.bestbuy.com{link['href']}\n"
                 # email message
-                print(message)
-                # sendEmail(message)
+                # print(message)
+                sendEmail(message)
 
             # if  button:
             #
@@ -126,6 +129,5 @@ def bestBuyScraper(url):
             #     if price:
             #
             #         print(f'{item_name.text.strip()}\n{price.text.strip()}\n')
-
 
 
